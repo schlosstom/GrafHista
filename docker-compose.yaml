@@ -1,0 +1,56 @@
+version: '3'
+
+networks:
+  grafhista:
+
+services:
+  grafana:
+    image: grafana/grafana:9.2.1
+    container_name: grafana
+    ports:
+      - 3000:3000
+    networks:
+      - grafhista
+    volumes:
+      - ./grafana:/var/lib/grafana
+      - ./etc/grafana:/etc/grafana
+        
+    environment:
+      - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
+    user: "$UserID"
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'tux'
+      MYSQL_PASSWORD: 'Suse1234'
+      MYSQL_ROOT_PASSWORD: 'Suse1234'
+    ports:
+      - '3306:3306'
+    networks:
+      - grafhista
+
+  grafhista:
+    build: .
+    image: grafhista:latest
+    container_name: grafhista
+    ports:
+      - 3100:3100
+    networks:
+      - grafhista
+    volumes:
+      - ./etc/promtail:/etc/promtail
+      - ./etc/loki:/etc/loki
+      - ./logs:/var/log
+    user: "$UserID"    
+    command:
+      - /bin/bash
+      - -c
+      - |
+        promtail-linux-amd64 -config.file=/etc/promtail/promtail.yml &
+        loki-linux-amd64 -config.file=/etc/loki/loki.yaml &
+        sleep infinity
+
