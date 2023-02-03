@@ -71,6 +71,11 @@ external path:  logs/examples/sa20220317
 The script **create_sar_db.py** can be used to create a mysql database for each 
 sar binary file. The database will then include the content of the sar data in form of different tables. 
 
+The script needs the mysql module:
+
+    zypper in python3-mysql-connector-python
+
+
 **Important:** The script is currently in a very **early alpha phase** and needs to inproved.
 
 The script has to be run localy outside of the container. 
@@ -91,9 +96,9 @@ Database: sa20220317 created
 
 On the Grafana dashboard mysql has to add as an additional source with following settings:
 
-**Host:** mysql
-**User:** root
-**Password:** Suse1234
+**Host:** mysql  
+**User:** root  
+**Password:** Suse1234  
 
 There is already a minimalistic Grafana Dashboard named **Sar** where each of 
 the created databases (sar files)  can be selected.
