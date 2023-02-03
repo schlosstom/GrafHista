@@ -40,7 +40,7 @@ Labels:
 - **host:** ext
 - **filename:** /var/log/examples/messages.txt
 
-Please adjust the date around **2022-12-12** in Grafana Dashboard
+Please adjust the date around **2023-02-03** in Grafana Dashboard
 
 #### Nameserver trace file 
 
@@ -67,6 +67,7 @@ Please adjust the date around **2022-12-11 - 2022-12-13** in Grafana Dashboard
 #### SAR files
 
 external path:  logs/examples/sa20220317
+                logs/examples/sa20230203
 
 The script **create_sar_db.py** can be used to create a mysql database for each 
 sar binary file. The database will then include the content of the sar data in form of different tables. 
@@ -83,8 +84,8 @@ The script has to be run localy outside of the container.
 Example:
 
 ```bash
-/usr/bin/python3 create_sar_db.py -f logs/examples/sa20220317
-Database: sa20220317 created
+/usr/bin/python3 create_sar_db.py -f logs/examples/sa20230203
+Database: sa20230203 created
     Table: kernel created
     Table: cpu_load created
     Table: paging created
