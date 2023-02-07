@@ -31,6 +31,7 @@ import json
 import sys 
 from pathlib import Path
 
+
 # Handle arguments 
 # A sar binary file is needed as argument
 # Make sure to have the sadf tool installed
@@ -46,22 +47,41 @@ my_db = mysql.connector.connect(
     user="root",
     password="Suse1234",
 )
-my_cursor = my_db.cursor()
 
+##### Constants #################################
+
+# For operation.
+MY_CURSOR = my_db.cursor()
+
+# Options for the different sar types like CPU, memory, paging, swap,...
+# see "man sar" for details 
+OPTIONS = {'-u', '-r', '-B', '-W', '-v', '-q'}  
+
+
+
+#### Functions ##################################
 
 # Create db based on the sar file name
-def create_db():
-    database_name = Path(args.file).name
+def create_db(file):
+    database_name = Path(file).name
     sql = "DROP DATABASE IF EXISTS " + database_name
-    my_cursor.execute(sql)
+    MY_CURSOR.execute(sql)
 
     sql = "create database " + database_name
-    my_cursor.execute(sql)
+    MY_CURSOR.execute(sql)
 
     sql = "use " + database_name
-    my_cursor.execute(sql)
+    MY_CURSOR.execute(sql)
     
     print("Database: " + database_name + " created")
+
+
+# Capture all data of the sar file and store it to a dict
+def capture_data(file, option):
+    dict = json.loads(subprocess.check_output(['sadf', '-j', file, '--', option], encoding='UTF-8'))
+    path = dict['sysstat']['hosts'][0]['statistics']
+    return(path)
+
 
 # Select mysql data type
 def data_type(value):
@@ -72,10 +92,6 @@ def data_type(value):
     elif isinstance(value, int):
         return(" BIGINT")
 
-# Capture all data of the sar file and store it to a dict
-def capture_data(file, option):
-    result = subprocess.check_output(['sadf', '-j', file, '--', option], encoding='UTF-8')
-    return(json.loads(result))
 
 # Correct naming problems 
 def name_correction(name):
@@ -87,40 +103,39 @@ def name_correction(name):
 
     return(name)
 
-# Where to find the time
-def point_to_time(counter):   
-    return ('timestamp', json_dict['sysstat']['hosts'][0]['statistics'][counter]['timestamp'])
 
-# Combine date and time 
-def create_time(counter):
-    tmp, path = point_to_time(counter)
-    return(path['date'] + " " + path['time'])
+# Where to find the time
+def get_date_time(number):
+    path = table_dict[number]['timestamp']  
+    date_time = path['date'] + " " + path['time'] 
+    return (date_time)
+
 
 # Where to find the data
-def point_to_report(counter):
-    base = json_dict['sysstat']['hosts'][0]['statistics'][counter]
-    report_name = ""
+def get_data_and_path(number):
+    path = table_dict[number]
+    data_name = ""
 
-    for key_name in (list(base.keys())):
+    for key_name in (list(path.keys())):
         if key_name != 'timestamp':
-            report_name = key_name
+            data_name = key_name
 
-    if isinstance(base[report_name], dict):
-        return (report_name, base[report_name])
-    
-    elif isinstance(base[report_name], list):
-        return (report_name, base[report_name][0])
-    
+    if isinstance(path[data_name], dict):
+        path = path[data_name]
+    elif isinstance(path[data_name], list):
+        path = path[data_name][0]
     else:
         print("An error occures. Exit") 
         sys.exit()   
 
+    data_name = name_correction(data_name)
+
+    return(data_name, path)    
+
 
 # Create table string
 def create_table_string():
-    name, path = point_to_report(0)
-
-    name = name_correction(name)
+    name, path = get_data_and_path(0)
 
     sql_string = "CREATE TABLE " + name + " (Date DATETIME"
     
@@ -132,40 +147,38 @@ def create_table_string():
     print("    Table: " + name + " created")
     return(sql_string)
 
-# Create insert string
-def create_insert_string(counter):
-    date = create_time(counter)
-    name, path = point_to_report(counter) 
 
-    name = name_correction(name)
+# Create insert string
+def create_insert_string(number):
+    date = get_date_time(number)
+    name, path = get_data_and_path(number) 
     
     sql_string = "INSERT INTO " + name + " SET Date = \'" + date  + "\'"
 
     for key, value in path.items():
         key = name_correction(key)
         sql_string += ", " + str(key) + " = \'" + str(value) + "\' "
-    
+
     return(sql_string)
 
 
-# -- Main --
 
-create_db()
+ #### Main ######################################
 
-options = {'-u', '-r', '-B', '-W', '-v', '-q'}
+create_db(args.file)
 
-for option in options:
-    json_dict = capture_data(args.file, option)
+for option in OPTIONS:
+    table_dict = capture_data(args.file, option)
 
     # Create table
     sql = create_table_string()
-    my_cursor.execute(sql)
+    MY_CURSOR.execute(sql)
 
     # Insert data 
     i = 0
     z = 0
-    for z in json_dict['sysstat']['hosts'][0]['statistics']:
+    for z in table_dict:
         sql = create_insert_string(i)
-        my_cursor.execute(sql)
+        MY_CURSOR.execute(sql)
         my_db.commit()
         i += 1
