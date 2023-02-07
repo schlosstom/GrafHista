@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, contact SUSE Linux GmbH.
-#
+# 
 # ------------------------------------------------------------------------------
 # Author: Thomas Schlosser <thomas.schlosser@suse.com>
 # 
@@ -63,6 +63,7 @@ OPTIONS = {'-u', '-r', '-B', '-W', '-v', '-q'}
 
 # Create db based on the sar file name
 def create_db(file):
+
     database_name = Path(file).name
     sql = "DROP DATABASE IF EXISTS " + database_name
     MY_CURSOR.execute(sql)
@@ -105,37 +106,31 @@ def name_correction(name):
 
 
 # Where to find the time
-def get_date_time(number):
-    path = table_dict[number]['timestamp']  
+def get_date_time(data_set):
+    path = data_set['timestamp']  
     date_time = path['date'] + " " + path['time'] 
     return (date_time)
 
 
 # Where to find the data
-def get_data_and_path(number):
-    path = table_dict[number]
-    data_name = ""
+def get_data_and_path(data_set):
 
-    for key_name in (list(path.keys())):
-        if key_name != 'timestamp':
-            data_name = key_name
+    key_name = (set(data_set.keys()) - {'timestamp'}).pop()
 
-    if isinstance(path[data_name], dict):
-        path = path[data_name]
-    elif isinstance(path[data_name], list):
-        path = path[data_name][0]
+    if isinstance(data_set[key_name], dict):
+        value = data_set[key_name]
+    elif isinstance(data_set[key_name], list):
+        value = data_set[key_name][0]
     else:
         print("An error occures. Exit") 
-        sys.exit()   
+        sys.exit(1)   
 
-    data_name = name_correction(data_name)
-
-    return(data_name, path)    
+    return name_correction(key_name), value
 
 
 # Create table string
-def create_table_string():
-    name, path = get_data_and_path(0)
+def create_table_string(data_set):
+    name, path = get_data_and_path(data_set)
 
     sql_string = "CREATE TABLE " + name + " (Date DATETIME"
     
@@ -149,9 +144,9 @@ def create_table_string():
 
 
 # Create insert string
-def create_insert_string(number):
-    date = get_date_time(number)
-    name, path = get_data_and_path(number) 
+def create_insert_string(data_set):
+    date = get_date_time(data_set)
+    name, path = get_data_and_path(data_set) 
     
     sql_string = "INSERT INTO " + name + " SET Date = \'" + date  + "\'"
 
@@ -171,14 +166,12 @@ for option in OPTIONS:
     table_dict = capture_data(args.file, option)
 
     # Create table
-    sql = create_table_string()
+    sql = create_table_string(table_dict[0])
     MY_CURSOR.execute(sql)
 
     # Insert data 
-    i = 0
-    z = 0
-    for z in table_dict:
-        sql = create_insert_string(i)
+    for data_set in table_dict:
+        sql = create_insert_string(data_set)
         MY_CURSOR.execute(sql)
         my_db.commit()
-        i += 1
+
