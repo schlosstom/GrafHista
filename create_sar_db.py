@@ -31,6 +31,7 @@ Changelog:    2023-01-30  v0.1    First testing.
 
 import subprocess
 import mysql.connector
+from mysql.connector import errorcode
 import argparse
 import json
 import sys 
@@ -47,16 +48,20 @@ args = parser.parse_args()
 
 
 # Prepare mysql 
-my_db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="Suse1234",
-)
+try:
+    my_db = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="Suse1234",
+    )
+    MY_CURSOR = my_db.cursor()
+except mysql.connector.Error as err: 
+    print( "Error: ", err.errno, err.msg)
+    sys.exit(1)
+
+
 
 ##### Constants #################################
-
-# For operation.
-MY_CURSOR = my_db.cursor()
 
 # Options for the different sar types like CPU, memory, paging, swap,...
 # see "man sar" for details 
@@ -66,31 +71,47 @@ OPTIONS = {'-u', '-r', '-B', '-W', '-v', '-q'}
 
 #### Functions ##################################
 
-# Create db based on the sar file name
+
 def create_db(file):
+    """ Create DATABSE based on the sar file name """
+    try:
 
-    database_name = Path(file).name
-    sql = "DROP DATABASE IF EXISTS " + database_name
-    MY_CURSOR.execute(sql)
+        database_name = Path(file).name
+        sql = "DROP DATABASE IF EXISTS " + database_name
+        MY_CURSOR.execute(sql)
 
-    sql = "create database " + database_name
-    MY_CURSOR.execute(sql)
+        sql = "create database " + database_name
+        MY_CURSOR.execute(sql)
 
-    sql = "use " + database_name
-    MY_CURSOR.execute(sql)
+        sql = "use " + database_name
+        MY_CURSOR.execute(sql)
     
-    print("Database: " + database_name + " created")
+        print("Database: " + database_name + " created")
+
+    except mysql.connector.Error as err:
+        print ("Error: ", err.errno, err.msg)   
+        sys.exit(1) 
 
 
-# Capture all data of the sar file and store it to a dict
+
 def capture_data(file, option):
-    dict = json.loads(subprocess.check_output(['sadf', '-j', file, '--', option], encoding='UTF-8'))
-    path = dict['sysstat']['hosts'][0]['statistics']
+    """ 
+    Capture data of the sar file and store it to a dict. 
+    The variable "option" is one of the sar option defind as global constant list (OPTIONS)
+    The result is the "key address" where the needed data is starting.
+    """
+    try:
+        dict = json.loads(subprocess.check_output(['sadf', '-j', file, '--', option], encoding='UTF-8'))
+        path = dict['sysstat']['hosts'][0]['statistics']
+    except:
+        print("File not found")
+        sys.exit(1)
+
     return(path)
 
 
-# Select mysql data type
 def data_type(value):
+    """ Returns mysql value type based on the value type we get from the dict."""
     if isinstance(value, float):          
         return(" FLOAT(32,2)")
     elif isinstance(value, str):
@@ -99,8 +120,8 @@ def data_type(value):
         return(" BIGINT")
 
 
-# Correct naming problems 
 def name_correction(name):
+    """ Correct some not allowed names"""
     if '-' in name:
         name = name.replace('-','_')
 
@@ -110,15 +131,15 @@ def name_correction(name):
     return(name)
 
 
-# Where to find the time
 def get_date_time(data_set):
+    """ Returns date and time from the given index and combine it together"""
     path = data_set['timestamp']  
     date_time = path['date'] + " " + path['time'] 
     return (date_time)
 
 
-# Where to find the data
 def get_data_and_path(data_set):
+    """ Returns the "key address and the name from the given index  """
 
     key_name = (set(data_set.keys()) - {'timestamp'}).pop()
 
@@ -133,8 +154,9 @@ def get_data_and_path(data_set):
     return name_correction(key_name), value
 
 
-# Create table string
+
 def create_table_string(data_set):
+    """ Returns the sql string for creating the table based on the given index """
     name, path = get_data_and_path(data_set)
 
     sql_string = "CREATE TABLE " + name + " (Date DATETIME"
@@ -145,11 +167,12 @@ def create_table_string(data_set):
 
     sql_string += ")"
     print("    Table: " + name + " created")
+
     return(sql_string)
 
 
-# Create insert string
 def create_insert_string(data_set):
+    """ Returns the sql string for inserting proper data to the table based on the given index """
     date = get_date_time(data_set)
     name, path = get_data_and_path(data_set) 
     
@@ -163,6 +186,7 @@ def create_insert_string(data_set):
 
 
 def create_tables(file, options):
+    """ Main function for creating the database and all tables based on the given sar file """
     for option in options:
         table_dict = capture_data(file, option)
 
