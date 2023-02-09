@@ -28,17 +28,17 @@ Therefore a new namen was needed. The name contains the words **Grafana**, **His
 
 
 ## Examples:
-There are are ready some example logs under **logs/examples** for plaing around,
-
+There are are ready some example logs under **logs/examples** for plaing around.
 
 #### OS logfile 
-
-external path: logs/examples/messages.txt    
+I've already prepared a path where later on a supportconfig can be linked. So far 
+'logs/examples' can be linked to 'logs/sc' to access the messages.txt example file. 
+external path: logs/sc/messages.txt    
 
 Labels: 
 - **job:** messages
 - **host:** ext
-- **filename:** /var/log/examples/messages.txt
+- **filename:** /var/log/sc/examples/messages.txt
 
 Please adjust the date around **2023-02-03** in Grafana Dashboard
 
