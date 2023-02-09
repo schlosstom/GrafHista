@@ -33,6 +33,7 @@ There are are ready some example logs under **logs/examples** for plaing around.
 #### OS logfile 
 I've already prepared a path where later on a supportconfig can be linked. So far 
 'logs/examples' can be linked to 'logs/sc' to access the messages.txt example file. 
+
 external path: logs/sc/messages.txt    
 
 Labels: 
