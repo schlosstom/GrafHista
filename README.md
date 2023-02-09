@@ -101,5 +101,7 @@ On the Grafana dashboard mysql has to add as an additional source with following
 **User:** root  
 **Password:** Suse1234  
 
-There is already a minimalistic Grafana Dashboard named **Sar** where each of 
+There is already a first Grafana Dashboard named **Sar** where each of 
 the created databases (sar files)  can be selected.
+
+![Example - sar files](examples/example01.png)

@@ -71,7 +71,7 @@ scrape_configs:
     labels: 
       job: messages
       host: ext
-      __path__: /var/log/*/messages.txt
+      __path__: /var/log/sc/messages.txt
   pipeline_stages:
   - match:
       selector: '{job="messages"}'

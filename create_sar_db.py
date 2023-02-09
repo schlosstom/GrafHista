@@ -65,7 +65,7 @@ except mysql.connector.Error as err:
 
 # Options for the different sar types like CPU, memory, paging, swap,...
 # see "man sar" for details 
-OPTIONS = {'-u', '-r', '-B', '-W', '-v', '-q'}  
+OPTIONS = {'-u', '-r', '-B', '-W', '-v', '-q', '-S'}  
 
 
 
@@ -143,6 +143,8 @@ def get_data_and_path(data_set):
 
     key_name = (set(data_set.keys()) - {'timestamp'}).pop()
 
+    # Some data like cpu_load are stored in a single list element
+    # We check for list and assume that there is only one list element [0].
     if isinstance(data_set[key_name], dict):
         value = data_set[key_name]
     elif isinstance(data_set[key_name], list):
@@ -150,6 +152,11 @@ def get_data_and_path(data_set):
     else:
         print("An error occures. Exit") 
         sys.exit(1)   
+
+    # Unfortunately swap and memory have the keyname "memory"
+    # If there is a data key swapfree we will remane the key_name to swap
+    if 'swpfree'  in value.keys():
+        key_name = "swap"
 
     return name_correction(key_name), value
 
