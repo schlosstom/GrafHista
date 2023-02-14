@@ -28,7 +28,7 @@ Therefore a new namen was needed. The name contains the words **Grafana**, **His
 
 
 ## Examples:
-There are are ready some example logs under **logs/examples** for plaing around.
+There are already some example logs under **logs/examples** for playing around.
 
 #### OS logfile 
 I've already prepared a path where later on a supportconfig can be linked. So far 
