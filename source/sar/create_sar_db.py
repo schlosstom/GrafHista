@@ -80,9 +80,7 @@ def capture_data(file, option):
     """
     try:
         dict = json.loads(subprocess.check_output(['sadf', '-j', file, '--', option], encoding='UTF-8'))
-        path = dict['sysstat']['hosts'][0]
-        # TODO: host = dict['sysstat']['hosts'][0]['nodename']
-        
+        path = dict['sysstat']['hosts'][0]      
     except:
         print("File not found")
         sys.exit(1)
