@@ -32,7 +32,6 @@ Changelog:    2023-01-30  v0.1    First testing.
 import sar_db
 import subprocess
 import mysql.connector
-from mysql.connector import errorcode
 import argparse
 import json
 import sys 
@@ -81,7 +80,9 @@ def capture_data(file, option):
     """
     try:
         dict = json.loads(subprocess.check_output(['sadf', '-j', file, '--', option], encoding='UTF-8'))
-        path = dict['sysstat']['hosts'][0]['statistics']
+        path = dict['sysstat']['hosts'][0]
+        # TODO: host = dict['sysstat']['hosts'][0]['nodename']
+        
     except:
         print("File not found")
         sys.exit(1)
@@ -89,11 +90,14 @@ def capture_data(file, option):
     return(path)
 
 
+
 def create_db(file):
     """ Create DATABSE based on the sar file name """
     try:
+        # We also might need the hostname 
+        hostname = capture_data(file, "-r")['nodename']
 
-        database_name = Path(file).name
+        database_name = hostname + "_" + Path(file).name
         sql = "DROP DATABASE IF EXISTS " + database_name
         MY_CURSOR.execute(sql)
 
@@ -114,7 +118,8 @@ def create_db(file):
 def create_tables(file, options):
     """ Main function for creating the database and all tables based on the given sar file """
     for option in options:
-        table_dict = capture_data(file, option)
+        table_dict = capture_data(file, option)['statistics']
+
 
         # Create table
         sql = sar_db.create_table_string(table_dict[0])
