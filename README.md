@@ -86,7 +86,7 @@ Example:
 
 ```bash
 /usr/bin/python3 create_sar_db.py -f logs/examples/sa20230203
-Database: sa20230203 created
+Database: server01_sa20230203 created
     Table: kernel created
     Table: cpu_load created
     Table: paging created

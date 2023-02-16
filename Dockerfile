@@ -7,7 +7,14 @@ RUN zypper --non-interactive in vim \
                                 unzip \
                                 tar \
 																sudo \
-                                gzip 
+                                gzip \
+                                sysstat \
+                                python3 \
+                                python3-pip \
+                                python3-cryptography
+
+
+RUN pip install pymysql
 
 RUN curl -O -L https://github.com/grafana/loki/releases/download/v2.7.1/promtail-linux-amd64.zip
 RUN unzip promtail-linux-amd64.zip
@@ -29,5 +36,7 @@ RUN tar xf node_exporter-1.5.0.linux-amd64.tar.gz
 RUN cp node_exporter-1.5.0.linux-amd64/node_exporter /usr/bin/
 
 RUN useradd -u 1000 -m tux
+
 USER tux
+ 
  

@@ -62,8 +62,7 @@ def create_table_string(data_set):
         sql_string += ", " + key + data_type(value)
 
     sql_string += ")"
-    print("    Table: " + name + " created")
-
+    print(name, end=' ')
     return(sql_string)
 
 
