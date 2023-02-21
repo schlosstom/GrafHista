@@ -15,6 +15,7 @@ RUN zypper --non-interactive in vim \
 
 
 RUN pip install pymysql
+RUN pip install inotify
 
 RUN curl -O -L https://github.com/grafana/loki/releases/download/v2.7.1/promtail-linux-amd64.zip
 RUN unzip promtail-linux-amd64.zip

@@ -36,13 +36,19 @@ TODO:       * Improve error handling
 """
 
 import sar_db
+import pymysql
 import subprocess
 import json
 import sys 
 from pathlib import Path
 import glob
-import pymysql
 from datetime import datetime
+import inotify.adapters
+import logging
+
+
+logging.basicConfig(level=logging.INFO, filename='/var/log/sar_db.log', filemode='w',
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 db_connect = pymysql.connect(
@@ -75,7 +81,7 @@ def capture_data(file, option):
         dict = json.loads(subprocess.check_output(['sadf', '-j', file, '--', option], encoding='UTF-8'))
         path = dict['sysstat']['hosts'][0]      
     except:
-        print("File not found")
+        logging.error(f'capture_data() - File: {file} not found or invalide option: {option}')
         sys.exit(1)
 
     return(path)
@@ -97,9 +103,9 @@ def create_db(file):
 
         sql = "use " + database_name
         MY_CURSOR.execute(sql)   
-        print(database_name, end=' [ ')
+        logging.info(f'create_db() - Create database: {database_name}')
     except:
-        print ("Error: ")   
+        logging.error(f'create_db() - Error creating or dropping database {file} for hostname {hostname}')   
         sys.exit(1) 
 
 
@@ -111,28 +117,49 @@ def create_tables(file, options):
 
         # Create table
         sql = sar_db.create_table_string(table_dict[0])
+        logging.info(f'create_tables() - create SQL string is: {sql}')
         MY_CURSOR.execute(sql)
 
         # Insert data 
         for data_set in table_dict:
             sql = sar_db.create_insert_string(data_set)
-            MY_CURSOR.execute(sql)          
+            logging.debug(f'create_tables() - Insert SQL is is: {sql}')              
+            MY_CURSOR.execute(sql)
+        
         db_connect.commit()
 
  
-if __name__ == "__main__":
-
-    sar_path = ('/var/log/sc/sar/', '/var/log/fu/var/log/sa/') 
+def load_data():
+    logging.info('load_data() - Starting load_loop()')
+    sar_path = ('/logs/sc/sar/', '/logs/fu/var/log/sa/') 
     
     for path in sar_path:
         try:
             sar_files = glob.glob(path + "sa????????")
             for file in sar_files:                
-                print(datetime.now(), file, end=' ')
+                logging.info(f'load_data() - Found file: {file}')
                 create_db(file)
-                create_tables(file,OPTIONS)
-                print(']')    
+                create_tables(file,OPTIONS)   
         except: 
-            print("Error: An error occured collecting sar files!")
-            #continue
-  
+            logging.warn(f'load_data() - Warn: An error occured collecting sar file {file}')  
+    logging.info('load_data() - Waiting for new events ...')
+
+
+def main():  
+    logging.info('main() - Starting main()')
+    load_data()
+    i = inotify.adapters.Inotify()
+    i.add_watch('/logs')
+    
+    for event in i.event_gen(yield_nones=False):
+        (_, type_names, _, _) = event
+
+        if 'IN_CREATE' in type_names:
+            logging.info('main() - Event action: sar content has been changed. Reload data...')
+            load_data()
+
+
+
+
+if __name__ == "__main__":
+    main()

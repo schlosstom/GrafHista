@@ -44,14 +44,13 @@ services:
     volumes:
       - ./etc/promtail:/etc/promtail
       - ./etc/loki:/etc/loki
-      - ./logs:/var/log
+      - ./logs:/logs
       - ./source:/app 
     user: root 
     command:
       - /bin/bash
       - -c
-      - |
+      - |     
         promtail-linux-amd64 -config.file=/etc/promtail/promtail.yml &
         loki-linux-amd64 -config.file=/etc/loki/loki.yaml &
-        sleep 15 && cd /app/sar && python3 create_sar_db.py &      
-        sleep infinity
+        sleep 30 && cd /app/sar && python3 create_sar_db.py

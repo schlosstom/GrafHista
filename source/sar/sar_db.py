@@ -40,7 +40,7 @@ def get_data_and_path(data_set):
     elif isinstance(data_set[key_name], list):
         value = data_set[key_name][0]
     else:
-        print("An error occures. Exit") 
+        logging.error('get_data_and_path() - An error occures. Exit') 
         sys.exit(1)   
 
     # Unfortunately swap and memory have the same key_name "memory"
@@ -62,7 +62,8 @@ def create_table_string(data_set):
         sql_string += ", " + key + data_type(value)
 
     sql_string += ")"
-    print(name, end=' ')
+
+########    logging.info(f'create_table_string() - Creating table {sql_string}')
     return(sql_string)
 
 

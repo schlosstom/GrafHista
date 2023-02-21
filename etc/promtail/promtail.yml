@@ -10,16 +10,15 @@ clients:
 
 scrape_configs:
 
-
-# Collecting the HANA service-available trace file.
+# Fullsysteminfodump services
 - job_name: services
   static_configs:
   - targets:
       - localhost 
     labels:
       job: service-available
-      host: ext
-      __path__: /var/log/*/system_availability_*.trc
+      dataSource: Fullsysteminfodump
+      __path__: /logs/fu/HDB*/*/trace/system_availability_*.trc
   pipeline_stages:
   - match:
       selector: '{job="service-available"}'
@@ -27,6 +26,14 @@ scrape_configs:
       - regex:
           expression: '^0;(?P<time>.*?\..{6});(?P<message>.*$)'
 
+      - regex:
+          source: message
+          expression: '^(?:.*?;){4}(?P<Action>.*?);(?P<Watchdog>.*?);(?:.*?;){9}(?P<Service>.*?);.*$'
+      - labels:
+          Action:
+          Service: 
+          Watchdog:    
+
       - template:
           source: time
           template: '{{ Replace .Value " " "T" -1 }}000+01:00'
@@ -37,21 +44,34 @@ scrape_configs:
           action_on_failure: skip
 
 
-# Collecting HANA nameserver trace files.
+# Fullsysteminfodump nameserver
 - job_name: nameserver
   static_configs:
   - targets:
       - localhost
     labels:
       job: nameserver
-      host: ext
-      __path__: /var/log/*/nameserver*.trc
+      dataSource: Fullsysteminfodump
+      __path__: /logs/fu/HDB*/*/trace/nameserver*.trc
+
   pipeline_stages:
   - match:
-      selector: '{job="nameserver"}'
+      selector: '{job="nameserver"}'  
       stages:
       - regex:
+          source: filename
+          expression: '\/logs\/fu\/HDB.*\/.*\/trace\/(?P<NameserverFile>.*)\.trc'
+      - labels:
+          NameserverFile:  
+
+      - regex:
           expression: '^\[.+\]\{.+\}\[.+\] (?P<timestamp>.*?\..{6}) (?P<message>.*$)'
+
+      - regex:
+          source: message
+          expression: '^(?:.*?\s){4}(?P<NameserverUnit>.*?)\s.*$'
+      - labels:
+          NameserverUnit: 
 
       - template:
           source: timestamp
@@ -62,16 +82,21 @@ scrape_configs:
           format: RFC3339Nano
           action_on_failure: skip
 
+   
 
 
+
+
+
+# Supportconfig messages 
 - job_name: messages
   static_configs:
   - targets:
       - localhost
     labels: 
       job: messages
-      host: ext
-      __path__: /var/log/sc/messages.txt
+      dataSource: Supportconfig
+      __path__: /logs/sc/messages.txt
   pipeline_stages:
   - match:
       selector: '{job="messages"}'
@@ -83,4 +108,7 @@ scrape_configs:
           source: timestamp
           format: RFC3339Nano
           action_on_failure: skip
+
+
+
 
