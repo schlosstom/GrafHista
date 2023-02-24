@@ -18,9 +18,7 @@ Therefore a new namen was needed. The name contains the words **Grafana**, **His
 
 ## How to use:
 
-All logs should be placed in a subfolder under logs/ (for example: logs/**my-trace/**). 
-
-The following command will create and start **GrafHista**:
+The following command will deploy and start **GrafHista**:
 
 **docker-compose up -d**
 
@@ -38,7 +36,6 @@ to a symlink.
 #### SAR Files
 
 In case of sar files, the python script **create_sar_db.py** will be triggert on every change and will collect all sar binary files and put it into a DB.
-
 
 There is already a first Grafana Dashboard named **Sar** where each of 
 the created databases (sar files)  can be selected.
