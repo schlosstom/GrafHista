@@ -40,7 +40,7 @@ In case of sar files, the python script **create_sar_db.py** will be triggert on
 There is already a first Grafana Dashboard named **Sar** where each of 
 the created databases (sar files)  can be selected.
 
-It can be reached out under http:://localhost:3000
+It can be reached out under http://localhost:3000
 
 ![Example - sar files](examples/example02.png)
 
@@ -59,3 +59,7 @@ There are also logs from the python script available for debuging porpose only:
 
 Currently there is no dashboard for the trace files available. But it is possible to 
 use the Grafana function Explore to reach it out.
+
+The following Labels are available so far:
+
+![Example - Available Labels](examples/example03.png)
