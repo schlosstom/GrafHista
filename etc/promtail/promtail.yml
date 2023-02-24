@@ -82,11 +82,6 @@ scrape_configs:
           format: RFC3339Nano
           action_on_failure: skip
 
-   
-
-
-
-
 
 # Supportconfig messages 
 - job_name: messages
@@ -109,6 +104,18 @@ scrape_configs:
           format: RFC3339Nano
           action_on_failure: skip
 
+
+
+# sar_db logs (see create_sar_db.py)
+- job_name: sar_db
+  static_configs:
+  - targets:
+      - localhost
+    labels: 
+      job: sar_db
+      dataSource: local
+      __path__: /var/log/sar_db.log 
+      
 
 
 

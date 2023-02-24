@@ -2,14 +2,14 @@
 
 def get_date_time(data_set):
     """ Returns date and time from the given index and combine it together"""
-    path = data_set['timestamp']  
-    date_time = path['date'] + " " + path['time'] 
+    path = data_set['timestamp']
+    date_time = path['date'] + " " + path['time']
     return (date_time)
 
 
 def data_type(value):
     """ Returns mysql value type based on the value type we get from the dict."""
-    if isinstance(value, float):          
+    if isinstance(value, float):
         return(" FLOAT(32,2)")
     elif isinstance(value, str):
         return(" VARCHAR(255)")
@@ -40,8 +40,8 @@ def get_data_and_path(data_set):
     elif isinstance(data_set[key_name], list):
         value = data_set[key_name][0]
     else:
-        logging.error('get_data_and_path() - An error occures. Exit') 
-        sys.exit(1)   
+        logging.error('get_data_and_path() - An error occures. Exit')
+        sys.exit(1)
 
     # Unfortunately swap and memory have the same key_name "memory"
     # If there is a data key swapfree we will remane the key_name to "swap"
@@ -56,9 +56,9 @@ def create_table_string(data_set):
     name, path = get_data_and_path(data_set)
 
     sql_string = "CREATE TABLE " + name + " (Date DATETIME"
-    
+
     for key, value in path.items():
-        key = name_correction(key)                        
+        key = name_correction(key)
         sql_string += ", " + key + data_type(value)
 
     sql_string += ")"
@@ -71,7 +71,7 @@ def create_insert_string(data_set):
     """ Returns the sql string for inserting proper data to the table based on the given index """
     date = get_date_time(data_set)
     name, path = get_data_and_path(data_set) 
-    
+
     sql_string = "INSERT INTO " + name + " SET Date = \'" + date  + "\'"
 
     for key, value in path.items():

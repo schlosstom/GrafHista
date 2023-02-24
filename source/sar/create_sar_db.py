@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
 """
 ------------------------------------------------------------------------------
@@ -14,10 +14,10 @@ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, contact SUSE Linux GmbH.
- 
+
 ------------------------------------------------------------------------------
 Author: Thomas Schlosser <thomas.schlosser@suse.com>
- 
+
 create_sar_db.py
 
 Imports data of a sar binary file and creates a mysql db. The mysql db can then
@@ -27,11 +27,9 @@ Changelog:  2023-01-30  v0.1    First testing.
             2023-02-01  v0.11   Each sar file has it own DB based on it name.
             2023-02-07  v0.2    Code improvements
             2023-02-14  v0.4    Split python code
-            2023-02-16  v0.6    Include the script in the container   
+            2023-02-16  v0.6    Include the script in the container
 
 TODO:       * Improve error handling
-            * Add a function to restart if there is a file/dir change outside (inotify??)
-            * Handle duplicate sar files (e.g. same file in fullsysteminfodump and supportconfig)
 
 """
 
@@ -59,27 +57,25 @@ db_connect = pymysql.connect(
     db='db'
 )
 MY_CURSOR = db_connect.cursor()
-   
-
-##### Constants #################################
-
-# Options for the different sar types like CPU, memory, paging, swap,...
-# see "man sar" for details 
-OPTIONS = {'-u', '-r', '-B', '-W', '-v', '-q', '-S'}  
 
 
+OPTIONS = {'-u', '-r', '-B', '-W', '-v', '-q', '-S'}
+"""
+Options for the different sar types like CPU, memory, paging, swap,...
+see "man sar" for details 
+"""
 
-#### Functions ##################################
+
 
 def capture_data(file, option):
-    """ 
-    Capture data of the sar file and store it to a dict. 
+    """
+    Capture data of the sar file and store it to a dict.
     The variable "option" is one of the sar option defind as global constant list (OPTIONS)
     The result is the "key address" where the needed data is starting.
     """
     try:
         dict = json.loads(subprocess.check_output(['sadf', '-j', file, '--', option], encoding='UTF-8'))
-        path = dict['sysstat']['hosts'][0]      
+        path = dict['sysstat']['hosts'][0]
     except:
         logging.error(f'capture_data() - File: {file} not found or invalide option: {option}')
         sys.exit(1)
@@ -91,7 +87,7 @@ def capture_data(file, option):
 def create_db(file):
     """ Create DATABSE based on the sar file name """
     try:
-        # We also might need the hostname 
+        # We need the hostname 
         hostname = capture_data(file, "-r")['nodename']
 
         database_name = hostname + "_" + Path(file).name
@@ -102,11 +98,11 @@ def create_db(file):
         MY_CURSOR.execute(sql)
 
         sql = "use " + database_name
-        MY_CURSOR.execute(sql)   
+        MY_CURSOR.execute(sql)
         logging.info(f'create_db() - Create database: {database_name}')
     except:
-        logging.error(f'create_db() - Error creating or dropping database {file} for hostname {hostname}')   
-        sys.exit(1) 
+        logging.error(f'create_db() - Error creating or dropping database {file} for hostname {hostname}')
+        sys.exit(1)
 
 
 
@@ -117,48 +113,47 @@ def create_tables(file, options):
 
         # Create table
         sql = sar_db.create_table_string(table_dict[0])
-        logging.info(f'create_tables() - create SQL string is: {sql}')
+        logging.debug(f'create_tables() - create SQL string is: {sql}')
         MY_CURSOR.execute(sql)
 
-        # Insert data 
+        # Insert data
         for data_set in table_dict:
             sql = sar_db.create_insert_string(data_set)
-            logging.debug(f'create_tables() - Insert SQL is is: {sql}')              
+            logging.debug(f'create_tables() - Insert SQL is is: {sql}')
             MY_CURSOR.execute(sql)
-        
+
         db_connect.commit()
 
- 
+
 def load_data():
+    """ Main process for loading all available sar files"""
     logging.info('load_data() - Starting load_loop()')
-    sar_path = ('/logs/sc/sar/', '/logs/fu/var/log/sa/') 
-    
+    sar_path = ('/logs/fu/var/log/sa/', '/logs/sc/sar/')
+
     for path in sar_path:
         try:
             sar_files = glob.glob(path + "sa????????")
-            for file in sar_files:                
-                logging.info(f'load_data() - Found file: {file}')
+            for file in sar_files:
+                logging.debug(f'load_data() - Found file: {file}')
                 create_db(file)
-                create_tables(file,OPTIONS)   
-        except: 
-            logging.warn(f'load_data() - Warn: An error occured collecting sar file {file}')  
+                create_tables(file,OPTIONS)
+        except:
+            logging.warn(f'load_data() - Warn: An error occured collecting sar file {file}')
     logging.info('load_data() - Waiting for new events ...')
 
 
-def main():  
+def main():
+    """ Triggers the function load_data() if ther are any changes in logs/ folder"""
     logging.info('main() - Starting main()')
     load_data()
-    i = inotify.adapters.Inotify()
-    i.add_watch('/logs')
-    
+    i = inotify.adapters.InotifyTree('/logs')
+
     for event in i.event_gen(yield_nones=False):
         (_, type_names, _, _) = event
 
-        if 'IN_CREATE' in type_names:
+        if 'IN_CREATE' in type_names or 'IN_DELETE' in type_names:
             logging.info('main() - Event action: sar content has been changed. Reload data...')
             load_data()
-
-
 
 
 if __name__ == "__main__":
