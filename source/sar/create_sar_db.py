@@ -28,6 +28,7 @@ Changelog:  2023-01-30  v0.1    First testing.
             2023-02-07  v0.2    Code improvements
             2023-02-14  v0.4    Split python code
             2023-02-16  v0.6    Include the script in the container
+            2023-02-24  v0.8    Add inotify function to trigger script on file change 
 
 TODO:       * Improve error handling
 
@@ -139,11 +140,12 @@ def load_data():
                 create_tables(file,OPTIONS)
         except:
             logging.warn(f'load_data() - Warn: An error occured collecting sar file {file}')
+
     logging.info('load_data() - Waiting for new events ...')
 
 
 def main():
-    """ Triggers the function load_data() if ther are any changes in logs/ folder"""
+    """ Triggers the function load_data() if there are any changes in logs/ folder"""
     logging.info('main() - Starting main()')
     load_data()
     i = inotify.adapters.InotifyTree('/logs')

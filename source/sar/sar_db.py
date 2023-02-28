@@ -1,5 +1,4 @@
 
-
 def get_date_time(data_set):
     """ Returns date and time from the given index and combine it together"""
     path = data_set['timestamp']
@@ -18,7 +17,7 @@ def data_type(value):
 
 
 def name_correction(name):
-    """ Correct some not allowed names"""
+    """ Correct some "not allowed" names in mysql"""
     if '-' in name:
         name = name.replace('-','_')
 
@@ -29,7 +28,7 @@ def name_correction(name):
 
 
 def get_data_and_path(data_set):
-    """ Returns the "key address and the name from the given index  """
+    """ Returns the key address and the name from the given index  """
 
     key_name = (set(data_set.keys()) - {'timestamp'}).pop()
 
