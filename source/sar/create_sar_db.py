@@ -29,7 +29,7 @@ Changelog:  2023-01-30  v0.1    First testing.
             2023-02-14  v0.4    Split python code
             2023-02-16  v0.6    Include the script in the container
             2023-02-24  v0.8    Add inotify function to trigger script on file change 
-            2023-03-02  v0.9    - Add config .yaml
+            2023-03-02  v0.9    - add config.yaml
                                 - some error handling improvements (still not satisfied)
                                 - promtail.yml improvements
 
@@ -71,12 +71,6 @@ db_connect = pymysql.connect(
 MY_CURSOR = db_connect.cursor()
 
 
-OPTIONS = {'-u', '-r', '-B', '-W', '-v', '-q', '-S'}
-"""
-Options for the different sar types like CPU, memory, paging, swap,...
-see "man sar" for details 
-"""
-
 def capture_data(file, option):
     """
     Capture data of the sar file and store it to a dict.
@@ -116,7 +110,7 @@ def create_db(file, source_key):
 
 
 
-def create_tables(file, options):
+def create_tables(file):
     """ Main function for creating the database and all tables based on the given sar file """
     try:
         for option in config['options'].values():
@@ -150,7 +144,7 @@ def load_data():
             for file in sar_files:
                 logging.debug(f'load_data() - Found file: {file}')
                 create_db(file, source_key)
-                create_tables(file,OPTIONS)
+                create_tables(file)
         except:
             logging.warn(f'load_data() - Warn: An error occured collecting sar file {file}')
 

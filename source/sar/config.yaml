@@ -1,3 +1,10 @@
+# Config file for the create_sar_db python script
+# 
+# Last change: 2023-03-02
+# 
+
+# Connection data for the mysql DB container
+# The hostname is also the container name.
 mysql:
   host: 'mysql'
   port: 3306
@@ -5,6 +12,14 @@ mysql:
   passwd: 'Suse1234'
   db: 'db'
 
+# The following options are tested and can be used.
+# -u -r -B -W -v -q -S
+# If you want to add more options please considure that there might be 
+# a name_correction() needed. It is also possible that the data 
+# are in extra lists stored (see: first get_data_and_path() comment)
+# 
+# More options can be find under: man sar
+# 
 options:
   memory:    '-r'
   load:      '-q'
@@ -14,6 +29,11 @@ options:
   inodefile: '-v'
   pgpg:      '-B'
 
+# These are the sources where the sar files can be found.
+# Please note that there should be a symlinks for:
+# sc --> to exttracted supportconfig  folder
+# fu --> to a SAP a extracted fullsysteminfodump folder
+#
 sar_path:
   FU: '/logs/fu/var/log/sa/'
   SC: '/logs/sc/sar/'
