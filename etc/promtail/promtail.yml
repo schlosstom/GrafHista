@@ -10,7 +10,7 @@ clients:
 
 scrape_configs:
 
-# Fullsysteminfodump services
+# Fullsysteminfodump services #####################################################################
 - job_name: services
   static_configs:
   - targets:
@@ -19,13 +19,18 @@ scrape_configs:
       job: service-available
       dataSource: Fullsysteminfodump
       __path__: /logs/fu/HDB*/*/trace/system_availability_*.trc
+
   pipeline_stages:
+
   - match:
       selector: '{job="service-available"}'
       stages:
+
+      # Separate timestamp and messages for further process
       - regex:
           expression: '^0;(?P<time>.*?\..{6});(?P<message>.*$)'
 
+      # Create Label: Action, Watchdog and Service
       - regex:
           source: message
           expression: '^(?:.*?;){4}(?P<Action>.*?);(?P<Watchdog>.*?);(?:.*?;){9}(?P<Service>.*?);.*$'
@@ -34,17 +39,17 @@ scrape_configs:
           Service: 
           Watchdog:    
 
+      # Correct  and create loki compatible timestamp 
       - template:
           source: time
           template: '{{ Replace .Value " " "T" -1 }}000+01:00'
-
       - timestamp:
           source: time
           format: RFC3339Nano
-          action_on_failure: skip
+          action_on_failure: fudge
 
 
-# Fullsysteminfodump nameserver
+# Fullsysteminfodump nameserver ###################################################################
 - job_name: nameserver
   static_configs:
   - targets:
@@ -55,35 +60,98 @@ scrape_configs:
       __path__: /logs/fu/HDB*/*/trace/nameserver*.trc
 
   pipeline_stages:
+
+  # Drop all lines without timestamp (e.g. stack traces)
   - match:
-      selector: '{job="nameserver"}'  
+      selector: '{job="nameserver"} !~ "[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}." '
+      action: drop
+      drop_counter_reason: promtail_stack_message
+  
+  # Main match section
+  - match:
+      selector: '{job="nameserver"} '
       stages:
+
+      # Create filename Label to avoid the whole path   
       - regex:
           source: filename
-          expression: '\/logs\/fu\/HDB.*\/.*\/trace\/(?P<NameserverFile>.*)\.trc'
+          expression: '\/logs\/fu\/HDB.*\/.*\/trace\/(?P<TraceFile>.*)\.trc'
       - labels:
-          NameserverFile:  
+          TraceFile:  
 
+      # Separate timestamp and messages for further process
       - regex:
           expression: '^\[.+\]\{.+\}\[.+\] (?P<timestamp>.*?\..{6}) (?P<message>.*$)'
 
+      # Create Unit Label
       - regex:
           source: message
-          expression: '^(?:.*?\s){4}(?P<NameserverUnit>.*?)\s.*$'
+          expression: '^..(?P<TraceUnit>.*?)\s.*$'
       - labels:
-          NameserverUnit: 
+          TraceUnit: 
 
+      # Correct  and create loki compatible timestamp 
       - template:
           source: timestamp
           template: '{{ Replace .Value " " "T" -1 }}000+01:00'
-
       - timestamp:
           source: timestamp
           format: RFC3339Nano
-          action_on_failure: skip
+          action_on_failure: fudge
 
 
-# Supportconfig messages 
+# Fullsysteminfodump indexserver ##################################################################
+- job_name: indexserver
+  static_configs:
+  - targets:
+      - localhost
+    labels:
+      job: indexserver
+      dataSource: Fullsysteminfodump
+      __path__: /logs/fu/HDB*/*/trace/DB_*/indexserver*.trc
+
+  pipeline_stages:
+
+  # Drop all lines without timestamp (e.g. stack traces)
+  - match:
+      selector: '{job="indexserver"} !~ "[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}." '
+      action: drop
+      drop_counter_reason: promtail_stack_messages
+  
+  # Main match section
+  - match:
+      selector: '{job="indexserver"} '
+      stages:
+
+      # Create filename Label to avoid the whole path   
+      - regex:
+          source: filename
+          expression: '\/logs\/fu\/HDB.*\/.*\/trace\/DB_.*\/(?P<TraceFile>.*)\.trc'
+      - labels:
+          TraceFile:  
+
+      # Separate timestamp and messages for further process
+      - regex:
+          expression: '^\[.+\]\{.+\}\[.+\] (?P<timestamp>.*?\..{6}) (?P<message>.*$)'
+
+      # Create Unit Label
+      - regex:
+          source: message
+          expression: '^..(?P<TraceUnit>.*?)\s.*$'
+      - labels:
+          TraceUnit: 
+
+      # Correct  and create loki compatible timestamp 
+      - template:
+          source: timestamp
+          template: '{{ Replace .Value " " "T" -1 }}000+01:00'
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+          action_on_failure: fudge
+
+
+# Supportconfig messages ##########################################################################
 - job_name: messages
   static_configs:
   - targets:
@@ -92,28 +160,31 @@ scrape_configs:
       job: messages
       dataSource: Supportconfig
       __path__: /logs/sc/messages.txt
+
   pipeline_stages:
+
   - match:
       selector: '{job="messages"}'
       stages:
+
+      # Separate timestamp and messages for further process
       - regex:
           expression: '^(?P<timestamp>.*?\..{6}\+\d{2}\:\d{2})(?P<message>.*$)'  
 
       - timestamp:
           source: timestamp
           format: RFC3339Nano
-          action_on_failure: skip
+          action_on_failure: fudge
 
 
 
-# sar_db logs (see create_sar_db.py)
+# sar_db logs (see create_sar_db.py) ##############################################################
 - job_name: sar_db
   static_configs:
   - targets:
       - localhost
     labels: 
       job: sar_db
-      dataSource: local
       __path__: /var/log/sar_db.log 
       
 

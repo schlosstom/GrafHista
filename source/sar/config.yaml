@@ -1,0 +1,21 @@
+mysql:
+  host: 'mysql'
+  port: 3306
+  user: 'root'
+  passwd: 'Suse1234'
+  db: 'db'
+
+options:
+  memory:    '-r'
+  load:      '-q'
+  swap:      '-S'
+  cpu:       '-u'
+  pgswap:    '-W'
+  inodefile: '-v'
+  pgpg:      '-B'
+
+sar_path:
+  FU: '/logs/fu/var/log/sa/'
+  SC: '/logs/sc/sar/'
+
+

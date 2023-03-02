@@ -11,7 +11,9 @@ RUN zypper --non-interactive in vim \
                                 sysstat \
                                 python3 \
                                 python3-pip \
-                                python3-cryptography
+                                python3-cryptography \
+                                python3-PyYAML
+
 
 
 RUN pip install pymysql

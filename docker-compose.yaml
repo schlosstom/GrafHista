@@ -53,4 +53,5 @@ services:
       - |     
         promtail-linux-amd64 -config.file=/etc/promtail/promtail.yml &
         loki-linux-amd64 -config.file=/etc/loki/loki.yaml &
-        sleep 30 && cd /app/sar && python3 create_sar_db.py
+        sleep infinity
+        # sleep 30 && cd /app/sar && python3 create_sar_db.py
