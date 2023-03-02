@@ -1,4 +1,4 @@
-# GrafHista
+![Logo](examples/GrafHistaLogo.png) 
 
 Especially for support it is often usefull to have an overview about different logs in a special timeframe. 
 
