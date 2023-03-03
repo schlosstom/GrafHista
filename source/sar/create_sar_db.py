@@ -89,7 +89,7 @@ def capture_data(file, option):
 
 
 def create_db(file, source_key):
-    """ Create DATABSE based on the sar file name """
+    """ Create DATABASE based on the sar file name """
     try:
         # We need the hostname 
         hostname = capture_data(file, "-r")['nodename']
@@ -103,7 +103,7 @@ def create_db(file, source_key):
 
         sql = "use " + database_name
         MY_CURSOR.execute(sql)
-        logging.info(f'create_db() - Create database: {database_name}')
+        logging.info(f'create_db() - Created database: {database_name}')
     except:
         logging.error(f'create_db() - Error creating or dropping database {file} for hostname {hostname}')
         sys.exit(1)

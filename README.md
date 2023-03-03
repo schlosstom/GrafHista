@@ -10,8 +10,7 @@ To gain first experiences in capturing offline traces and logs I've created thre
 
 
 #### Why is this project named GrafHista:
-In the very beginning of the idea to collect offline data, I've put all the code into the [GrafHana](https://gitlab.suse.de/tschloss/grafhana/) project as additional feature. Using additional different container and the fact that it can 
-not only capturing HANA specific data I deside to move it to a separate project.
+In the very beginning of the idea to collect offline data, I've put all the code into the [GrafHana](https://gitlab.suse.de/tschloss/grafhana/) project as additional feature. Using additional different container and the fact that it can not only capturing HANA specific data I deside to move it to a separate project.
 
 Therefore a new namen was needed. The name contains the words **Grafana**, **History** and **analyze**.
 
@@ -22,8 +21,7 @@ The following command will deploy and start **GrafHista**:
 
 **docker-compose up -d**
 
-The idea is to point the unpacked fullsysteminfodump and/or the supportconfig 
-to a symlink.
+The idea is to point the unpacked fullsysteminfodump and/or the supportconfig to a symlink.
 
 ```
 ├─ logs
@@ -37,8 +35,7 @@ to a symlink.
 
 In case of sar files, the python script **create_sar_db.py** will be triggert on every change and will collect all sar binary files and put it into a DB.
 
-There is already a first Grafana Dashboard named **Sar** where each of 
-the created databases (sar files)  can be selected.
+There is already a first Grafana Dashboard named **Sar** where each of the created databases (sar files)  can be selected.
 
 It can be reached out under http://localhost:3000
 
@@ -57,8 +54,7 @@ The promtail configuration will capture the following trace files:
 There are also logs from the python script available for debuging porpose only:
 /var/log/sar_db.log
 
-Currently there is no dashboard for the trace files available. But it is possible to 
-use the Grafana function Explore to reach it out.
+Currently there is no dashboard for the trace files available. But it is possible to use the Grafana function Explore to reach it out.
 
 The following Labels are available so far:
 
