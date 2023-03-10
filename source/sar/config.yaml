@@ -28,6 +28,7 @@ options:
   pgswap:    '-W'
   inodefile: '-v'
   pgpg:      '-B'
+  dev:       '-d'
 
 # These are the sources where the sar files can be found.
 # Please note that there should be a symlinks for:
