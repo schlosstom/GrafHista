@@ -1,4 +1,5 @@
-logs
+logs/fu*
+logs/sc*
 notes.txt
 source/sar/__pycache__
 .vscode

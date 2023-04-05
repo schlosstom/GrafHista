@@ -37,7 +37,7 @@ options:
 # fu --> to a SAP a extracted fullsysteminfodump folder
 #
 sar_path:
-#  FU: '/logs/fu/var/log/sa/'
+  FU: '/logs/fu/var/log/sa/'
   SC: '/logs/sc/sar/'
 
 
