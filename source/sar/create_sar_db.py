@@ -117,10 +117,9 @@ def create_table(key_name, item):
         # If there is a data key swapfree we will remane the key_name to "swap"    
         if 'swpfree'  in item.keys():
             key_name = "swap"
-        #key_name = sar_db.name_correction(key_name)
+
         sql_string = "CREATE TABLE " + key_name + " (Date DATETIME"
         for key, value in item.items():
-            #key = sar_db.name_correction(key)
             sql_string += ", " + key + sar_db.data_type(value)
         sql_string += ")"
         sql = sar_db.name_correction(sql_string)
