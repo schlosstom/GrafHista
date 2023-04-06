@@ -23,6 +23,10 @@ create_sar_db.py
 Imports data of a sar binary file and creates a mysql db. The mysql db can then
 be included into a Grafana dashboard for creating further queries and metrics.
 
+Logs are written to: /var/log/sar_db.log
+(inside the container grafhista)
+
+
 Changelog:  2023-01-30  v0.1    First testing.
             2023-02-01  v0.11   Each sar file has it own DB based on it name.
             2023-02-07  v0.2    Code improvements
