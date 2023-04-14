@@ -37,7 +37,7 @@ Changelog:  2023-01-30  v0.1    First testing.
                                 - some error handling improvements (still not satisfied)
                                 - promtail.yml improvements
             2023-04-05  v0.95   Changed the logic to be able capturing single dev and CPUs as well.
-                                Some additional improvements. 
+                                Some additional improvements                    
 
 """
 
@@ -84,7 +84,10 @@ def capture_data(file, option):
     The result is the "key address" where the needed data is starting.
     """
     try:
-        dict = json.loads(subprocess.check_output(['sadf', '-j', file, '--', option], encoding='UTF-8'))
+        commands = "sadf -j " + file + " -- " + option
+        command = commands.split()
+        print("capture_data() --> " + commands)
+        dict = json.loads(subprocess.check_output( command,  encoding='UTF-8'))
         path = dict['sysstat']['hosts'][0]
     except:
         logging.error(f'capture_data() - File: {file} not found or invalide option: {option}')

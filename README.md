@@ -43,6 +43,8 @@ It can be reached out under http://localhost:3000
 
 ![Example - sar files](examples/example01.png)
 
+![Example - sar files](examples/example04.png)
+
 #### SAP Trace Files (plus system logs)
 
 The promtail configuration will capture the following trace files:
