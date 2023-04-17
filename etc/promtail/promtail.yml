@@ -92,7 +92,7 @@ scrape_configs:
       # Correct  and create loki compatible timestamp 
       - template:
           source: timestamp
-          template: '{{ Replace .Value " " "T" -1 }}000+01:00'
+          template: '{{ Replace .Value " " "T" -1 }}000+00:00'
       - timestamp:
           source: timestamp
           format: RFC3339Nano
