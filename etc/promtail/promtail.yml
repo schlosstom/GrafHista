@@ -26,23 +26,22 @@ scrape_configs:
       selector: '{job="service-available"}'
       stages:
 
-      # Separate timestamp and messages for further process
-      - regex:
-          expression: '^0;(?P<time>.*?\..{6});(?P<message>.*$)'
-
       # Create Label: Action, Watchdog and Service
       - regex:
-          source: message
           expression: '^(?:.*?;){4}(?P<Action>.*?);(?P<Watchdog>.*?);(?:.*?;){9}(?P<Service>.*?);.*$'
       - labels:
           Action:
           Service: 
           Watchdog:    
 
+      # Separate timestamp and messages for further process
+      - regex:
+          expression: '^0;(?P<time>.*?\..{6});(?P<message>.*$)'
+
       # Correct  and create loki compatible timestamp 
       - template:
           source: time
-          template: '{{ Replace .Value " " "T" -1 }}000+01:00'
+          template: '{{ Replace .Value " " "T" -1 }}000+00:00'
       - timestamp:
           source: time
           format: RFC3339Nano
