@@ -39,6 +39,10 @@ In case of sar files, the python script **create_sar_db.py** will be triggert on
 
 ![Example - sar files](examples/example04.png)
 
+Pulldown menue where you can filter the sar data:
+
+![SAR File Bar](examples/sarfile_bar.png)
+
 #### SAP Trace Files
 
 The promtail configuration is currently capture only trace files with the following bash wildcard:
