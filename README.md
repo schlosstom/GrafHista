@@ -33,31 +33,45 @@ The idea is to point the unpacked fullsysteminfodump and/or the supportconfig to
 ```
 #### SAR Files
 
-In case of sar files, the python script **create_sar_db.py** will be triggert on every change and will collect all sar binary files and put it into a DB.
+In case of sar files, the python script **create_sar_db.py** will be triggert on every change and will collect all sar binary files and put it into a DB. Grafana is using the DB to show all the values. Once docker-composed is started the Grafana Dashboard can be reached under http://localhost:3000
 
-There is already a first Grafana Dashboard named **Sar** where each of the created databases (sar files)  can be selected.
-
-It can be reached out under http://localhost:3000
-
-![Example - sar files](examples/example02.png)
-
-![Example - sar files](examples/example01.png)
+##### SAR File part of the dashboard
 
 ![Example - sar files](examples/example04.png)
 
-#### SAP Trace Files (plus system logs)
+#### SAP Trace Files
 
-The promtail configuration will capture the following trace files:
+The promtail configuration is currently capture only trace files with the following bash wildcard:
+```
+logs/fu/HDB*/*/trace/*[0-9].[0-9][0-9][0-9].trc
+```
 
-* /logs/fu/HDB*/*/trace/system_availability_*.trc
-* /logs/fu/HDB*/*/trace/nameserver*.trc
-* /logs/sc/messages.txt
+This results in files like:
+```
+nameserver_alert_hana01.trc
+nameserver_hana01.00000.000.trc
+nameserver_hana01.30001.000.trc
+nameserver_hana01.30001.001.trc
+```
 
-There are also logs from the python script available for debuging porpose only:
-/var/log/sar_db.log
+But not in files like: 
+```
+nameserver_hana01.30001.component_history.000.csv
+nameserver_hana01.30001.executed_statements.000.trc
+```
 
-Currently there is no dashboard for the trace files available. But it is possible to use the Grafana function Explore to reach it out.
+There are also logs from the supportconfig if it fits to the same timeframe:
 
-The following Labels are available so far:
+```
+logs/sc/messages.txt
+```
 
-![Example - Available Labels](examples/example03.png)
+##### Tracefiles part of the dashboard
+
+![Example - sar files](examples/example_tracefile01.png)
+
+
+Pulldown menue where you can filter the traces:
+
+![Tracefile Bar](examples/tracefile_bar.png)
+
