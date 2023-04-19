@@ -22,7 +22,7 @@ In the very beginning of the idea to collect offline data, I've put all the code
 
 The following command will deploy and start **GrafHista**:
 
-**docker-compose up -d**
+```docker-compose up -d```
 
 Once docker-composed is started the Grafana Dashboard can be reached under http://localhost:3000
 
@@ -44,7 +44,7 @@ In case of sar files, the python script **create_sar_db.py** will be triggert on
 
 ##### Database
 
-Each database is a sar file and each table within the db is a single report.
+Each database is a sar file and each table within the db is a single report.  
 The db name contains **[hostname] _ [FU|SC] _ [sarfile]**
 
 ```
@@ -87,7 +87,8 @@ Pulldown menue where you can choose/filter the sar data:
 - **SARFile** - Switch between different sar files
 - **CPU's** - ON default CPU all is used but it is also possible to select single CPU's.
 - **DISK** - Choose one or more disk's.
-- **Disk__util** - It is sometimes useful to set the utilisazion in present on systems with a lot of disk's. Default is 0%.
+- **Disk__util** - It is sometimes useful to set the utilisazion in present on systems with a lot of disk's.  
+Default is 0%.
 
 Dashboard example:
 ![Example - sar files](examples/example04.png)
@@ -115,7 +116,7 @@ nameserver_hana01.30001.component_history.000.csv
 nameserver_hana01.30001.executed_statements.000.trc
 ```
 
-There are also logs from the supportconfig if it fits to the same timeframe:
+There are also logs from the supportconfig if they fit to the same timeframe:
 
 ```
 logs/sc/messages.txt
