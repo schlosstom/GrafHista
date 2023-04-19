@@ -20,6 +20,9 @@ In the very beginning of the idea to collect offline data, I've put all the code
 
 ## How to use:
 
+**IMPORTANT:**  
+The container grafana need to run with the same user you start with. Therefore the UserID hase to be changed in the  file **.env** to the current user. 
+
 The following command will deploy and start **GrafHista**:
 
 ```docker-compose up -d```
