@@ -216,9 +216,8 @@ def load_data():
         for sar_file in sar_path:
             host_name = capture_data(sar_file, "-r")['nodename']
             create_db(sar_file, path_name, host_name)
+            print("Sar file: ", sar_file)
             prepare_tables(sar_file)
-
-
 
 def main():
     """ Triggers the function load_data() if there are any changes in logs/ folder"""
