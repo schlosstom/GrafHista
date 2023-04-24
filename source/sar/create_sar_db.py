@@ -37,7 +37,8 @@ Changelog:  2023-01-30  v0.1    First testing.
                                 - some error handling improvements (still not satisfied)
                                 - promtail.yml improvements
             2023-04-05  v0.95   Changed the logic to be able capturing single dev and CPUs as well.
-                                Some additional improvements                    
+                                Some additional improvements  
+            2023-04-24  v0.96   Add network devices                                                   
 
 """
 
@@ -58,6 +59,7 @@ import pprint
 try:
     with open('config.yaml', 'r') as f: 
         config = yaml.safe_load(f)
+
 except Exception as err:
     print('Error reading config.yaml')
     exit(1)
@@ -155,21 +157,54 @@ def insert_table(key_name, item, time_line):
         sys.exit(1)    
 
 
+
 def prepare_tables(sar_file):
     """ Preparing the sar_file data for the tables  """
     try:
-        # For each item/option (-r , -u, ...)
-        for option in config['options'].values():
-            dict_option = capture_data(sar_file,option)['statistics']
+        # For each item/option (-r , -u, .option..)
+        for option in config['options'].items():
+            option_key, option_value = option
+            dict_option = capture_data(sar_file,option_value)['statistics']
             create_table_flac  = True
 
             # For every timeline (e.g. '2023-02-06 07:18:02')
             for time_line in dict_option:                
                 key_name = (set(time_line.keys()) - {'timestamp'}).pop()
 
+                # The network "offset" is more encapsulated like the other. For the moment I handle 
+                # it as a special case. TODO: have a more generic solution for all different possibilities.
+                # Below is a example of one time line:
+                # "timestamp": {
+                # "network": {
+                #               "net-dev": [
+			    #                            {"iface": lo ...
+                #                            {"iface": eth0 ...
+                #                              ...
+                #                          ]
+                #             }
+                if option_key == 'network':
+                    print("Network")
+                    key_name02 = (set(time_line[key_name].keys()) - {'network'}).pop()
+                    print(key_name, key_name02)
+                    item = time_line[key_name][key_name02][0]
+
+                    # Make sure the table will be created only once
+                    if create_table_flac:
+                        create_table(option_key, item)
+                        create_table_flac  = False                    
+  
+                    # Insert data for the created table    
+                    for item in time_line[key_name][key_name02]:
+                        insert_table(option_key, item, time_line)
+
+
                 # Most items has only one "device" like CPU(ALL) or memory, etc.
                 # This can be seen by the type which is in that case a dictionary part.
-                if isinstance(time_line[key_name], dict):
+                # Below is a example of one time line:                
+                # "timestamp": {
+                # "memory": {"memfree":
+                #
+                elif isinstance(time_line[key_name], dict):
 
                     # There is only one row for this time_line
                     item = time_line[key_name]
@@ -182,8 +217,16 @@ def prepare_tables(sar_file):
                     # Insert data for the created table    
                     insert_table(key_name, item, time_line)
 
-                # Some items like dev or (single) CPU's have more items based on one timeline
+                # Some items like DEV's or (single) CPU's have more items based on one timeline
                 # This can be seen by the type list. In this case an additional for loop is needed.
+                # Below is a example of one time line:                
+                # "timestamp": {                    
+                #  "cpu-load": [
+                #                 {"cpu": "all", "user": ...
+                #                 {"cpu": "0", "user": ...               
+                #                  ...
+                #              ]
+                #             
                 elif isinstance(time_line[key_name], list):
 
                     # The first list item contains a list of rows

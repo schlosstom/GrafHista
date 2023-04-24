@@ -29,6 +29,7 @@ options:
   inodefile: '-v'
   pgpg:      '-B'
   dev:       '-d'
+  network:   '-n DEV'
 
 
 # These are the sources where the sar files can be found.
