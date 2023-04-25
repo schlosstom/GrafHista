@@ -15,7 +15,7 @@ To gain first experiences in capturing offline traces and logs I've created 3 Do
 
 
 #### Why is this project named GrafHista:
-In the very beginning of the idea to collect offline data, I've put all the code into [GrafHana](https://gitlab.suse.de/tschloss/grafhana/) as additional feature. After some time I deside to move it to a separate project. Therefore a new namen was needed. The name continues the "pun" with Grafana and contains the words **Grafana**, **History** and **analyze**.
+In the very beginning of the idea to collect offline data, I've put all the code into [GrafHana](https://github.com/schlosstom/GrafHana) as additional feature. After some time I deside to move it to a separate project. Therefore a new namen was needed. The name continues the "pun" with Grafana and contains the words **Grafana**, **History** and **analyze**.
 
 
 ## How to use:

@@ -177,15 +177,13 @@ def prepare_tables(sar_file):
                 # "timestamp": {
                 # "network": {
                 #               "net-dev": [
-			    #                            {"iface": lo ...
-                #                            {"iface": eth0 ...
+			    #                           {"iface": lo ...
+                #                           {"iface": eth0 ...
                 #                              ...
                 #                          ]
                 #             }
                 if option_key == 'network':
-                    print("Network")
                     key_name02 = (set(time_line[key_name].keys()) - {'network'}).pop()
-                    print(key_name, key_name02)
                     item = time_line[key_name][key_name02][0]
 
                     # Make sure the table will be created only once
