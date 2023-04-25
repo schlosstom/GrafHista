@@ -136,13 +136,13 @@ scrape_configs:
 
 
 # sar_db logs (see create_sar_db.py) ##############################################################
-- job_name: sar_db
+- job_name: create_sar_db
   static_configs:
   - targets:
       - localhost
     labels: 
-      job: sar_db
-      __path__: /var/log/sar_db.log 
+      job: create_sar_db
+      __path__: /logs/create_sar_db.log 
       
 
 

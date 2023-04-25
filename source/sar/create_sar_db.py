@@ -56,17 +56,22 @@ import logging
 import yaml
 import pprint
 
+log_file = '/logs/create_sar_db.log'
+
+subprocess.run(["rm", log_file])
+
+logging.basicConfig(level=logging.INFO, filename=log_file, filemode='w',
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+
 try:
+    logging.info('Reading config file...')
     with open('config.yaml', 'r') as f: 
         config = yaml.safe_load(f)
 
 except Exception as err:
-    print('Error reading config.yaml')
+    logging.error('Error reading config.yaml')
     exit(1)
-
-
-logging.basicConfig(level=logging.INFO, filename='/var/log/sar_db.log', filemode='w',
-                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 db_connect = pymysql.connect(
@@ -86,9 +91,10 @@ def capture_data(file, option):
     The result is the "key address" where the needed data is starting.
     """
     try:
+        # Comment out here to see every report.
+        # logging.info(f'capture_data() - Reading {file} with option {option}')
         commands = "sadf -j " + file + " -- " + option
         command = commands.split()
-        print("capture_data() --> " + commands)
         dict = json.loads(subprocess.check_output( command,  encoding='UTF-8'))
         path = dict['sysstat']['hosts'][0]
     except:
@@ -109,7 +115,6 @@ def create_db(sar_file, path_name, hostname):
 
         sql = "use " + database_name
         MY_CURSOR.execute(sql)
-        print("Create DB: ",database_name)
     except:
         logging.error(f'create_db() - Error creating or dropping database {sar_file} for hostname {hostname}')
         sys.exit(1)
@@ -128,7 +133,7 @@ def create_table(key_name, item):
             sql_string += ", " + key + sar_db.data_type(value)
         sql_string += ")"
         sql = sar_db.name_correction(sql_string)
-        print(sql)
+        
         MY_CURSOR.execute(sql)
     except:
         logging.error(f'create_table() - Error creating table {key_name} ')
@@ -150,7 +155,6 @@ def insert_table(key_name, item, time_line):
             #key = sar_db.name_correction(key)
             sql_string += ", " + str(key) + " = \'" + str(value) + "\' "
         sql = sar_db.name_correction(sql_string)
-        print(sql)
         MY_CURSOR.execute(sql)
     except:
         logging.error(f'insert_table() - Error inserting {key_name} for date {date}')
@@ -247,7 +251,7 @@ def prepare_tables(sar_file):
 
 def load_data():
     """ Main process for loading all available sar files"""
-    logging.info('load_data() - Starting load_loop()')
+    logging.info('load_data() - Starting... ')
 
     # For each path written in config file.
     for path_name, path_value in config['sar_path'].items():
@@ -255,15 +259,16 @@ def load_data():
 
         # For each sar file in given path.
         for sar_file in sar_path:
-            host_name = capture_data(sar_file, "-r")['nodename']
+            host_name = capture_data(sar_file, " ")['nodename']
             create_db(sar_file, path_name, host_name)
-            print("Sar file: ", sar_file)
+            logging.info(f'load_data() - Scanning sar file: {sar_file}')
             prepare_tables(sar_file)
 
 def main():
     """ Triggers the function load_data() if there are any changes in logs/ folder"""
     # First run on startup
     load_data()
+    logging.info('main() - Initial loop done - waiting for first changes!')
     
     # monitor the /logs folder inside the container 
     i = inotify.adapters.InotifyTree('/logs')
@@ -273,7 +278,9 @@ def main():
 
         # Triggers the main function load_data() by any new or deleted files or folders 
         if 'IN_CREATE' in type_names or 'IN_DELETE' in type_names:
+            logging.info('main() - Changes in folder detected')
             load_data()
+            logging.info('main() - Waiting for new changes!')
 
 
 

@@ -1,0 +1,28 @@
+2023-04-25 13:06:43,746 - INFO - Reading config file...
+2023-04-25 13:06:43,790 - INFO - load_data() - Starting... 
+2023-04-25 13:06:43,837 - INFO - load_data() - Scanning sar file: /logs/fu/var/log/sa/sa20230417
+2023-04-25 13:06:46,425 - INFO - load_data() - Scanning sar file: /logs/fu/var/log/sa/sa20230420
+2023-04-25 13:07:12,146 - INFO - load_data() - Scanning sar file: /logs/sc/sar/sa20230415
+2023-04-25 13:07:14,486 - INFO - load_data() - Scanning sar file: /logs/sc/sar/sa20230416
+2023-04-25 13:07:15,418 - INFO - load_data() - Scanning sar file: /logs/sc/sar/sa20230417
+2023-04-25 13:07:16,841 - INFO - main() - Initial loop done - waiting for first changes!
+2023-04-25 13:07:54,121 - INFO - main() - Changes in folder detected
+2023-04-25 13:07:54,122 - INFO - load_data() - Starting... 
+2023-04-25 13:07:54,303 - INFO - load_data() - Scanning sar file: /logs/fu/var/log/sa/sa20230417
+2023-04-25 13:07:55,880 - INFO - load_data() - Scanning sar file: /logs/fu/var/log/sa/sa20230420
+2023-04-25 13:08:19,484 - INFO - load_data() - Scanning sar file: /logs/sc/sar/sa20230415
+2023-04-25 13:08:21,759 - INFO - load_data() - Scanning sar file: /logs/sc/sar/sa20230416
+2023-04-25 13:08:22,567 - INFO - load_data() - Scanning sar file: /logs/sc/sar/sa20230417
+2023-04-25 13:08:23,410 - INFO - main() - Waiting for new changes!
+2023-04-25 13:10:51,304 - INFO - main() - Changes in folder detected
+2023-04-25 13:10:51,305 - INFO - load_data() - Starting... 
+2023-04-25 13:10:51,498 - INFO - load_data() - Scanning sar file: /logs/fu/var/log/sa/sa20230417
+2023-04-25 13:10:52,866 - INFO - load_data() - Scanning sar file: /logs/fu/var/log/sa/sa20230420
+2023-04-25 13:11:15,760 - INFO - load_data() - Scanning sar file: /logs/sc/sar/sa20230415
+2023-04-25 13:11:18,263 - INFO - load_data() - Scanning sar file: /logs/sc/sar/sa20230416
+2023-04-25 13:11:19,268 - INFO - load_data() - Scanning sar file: /logs/sc/sar/sa20230417
+2023-04-25 13:11:20,233 - INFO - main() - Waiting for new changes!
+2023-04-25 13:13:41,941 - INFO - main() - Changes in folder detected
+2023-04-25 13:13:41,942 - INFO - load_data() - Starting... 
+2023-04-25 13:13:42,103 - INFO - load_data() - Scanning sar file: /logs/fu/var/log/sa/sa20230417
+2023-04-25 13:13:43,222 - INFO - load_data() - Scanning sar file: /logs/fu/var/log/sa/sa20230420
