@@ -46,7 +46,8 @@ services:
       - ./etc/promtail:/etc/promtail
       - ./etc/loki:/etc/loki
       - ./logs:/logs
-      - ./source:/app 
+      - ./source:/app
+      - /etc/localtime:/etc/localtime
     user: root 
     command:
       - /bin/bash
